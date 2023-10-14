@@ -106,7 +106,7 @@ def send_mqtt_config():
                                                                         VENDOR_NAME=VENDOR_NAME, SW_VERSION=SW_VERSION, REPO=REPO,
                                                                         VENDOR_ID=VENDOR_ID, DEVICE_ID=DEVICE_ID, UNIQUE_ID=UNIQUE_ID,
                                                                         meter_type_CAP=str(meter['type']).capitalize(),
-                                                                        meter_type=meter['type'], meter_id=meter['id'], meter_units=meter['unit']), 
+                                                                        meter_type=meter['type'], meter_id=meter['id'], meter_units=meter['unit'], meter_icon=meter['icon']), 
                                qos=1, hostname=MQTT_HOST, port=int(MQTT_PORT), auth=auth, retain=True)
                 publish.single(topic=ha.HA_CONFIG_TOPIC_LINKQUALITY.format(UNIQUE_ID=UNIQUE_ID, meter_type=meter['type'], meter_id=meter['id']), 
                                payload=ha.HA_CONFIG_PAYLOAD_LINKQUALITY.format(STATE_TOPIC=ha.STATE_TOPIC.format(VENDOR_ID=VENDOR_ID, 

@@ -4,3 +4,6 @@ test
 .vscode
 .devcontainer
 __pycache__
+Dockerfile
+data
+docker-compose.yaml

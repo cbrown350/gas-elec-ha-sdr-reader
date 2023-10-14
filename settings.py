@@ -15,7 +15,8 @@ WATCHED_METERS = '''
             "id": "20190118",
             "unit_multiplier": 0.01,
             "rtlsdr_id_name": "ERTSerialNumber",
-            "rtlsdr_value_name": "LastConsumptionCount"
+            "rtlsdr_value_name": "LastConsumptionCount",
+            "icon": "mdi:meter-electric"
           },
           {
             "type": "gas",
@@ -23,7 +24,8 @@ WATCHED_METERS = '''
             "unit_multiplier": 0.00087627,
             "id": "95851177",
             "rtlsdr_id_name": "EndpointID",
-            "rtlsdr_value_name": "Consumption"
+            "rtlsdr_value_name": "Consumption",
+            "icon": "mdi:meter-gas"
           }
         ]
         '''
