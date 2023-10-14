@@ -1,0 +1,64 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/docker-existing-dockerfile
+{
+	"name": "Existing Dockerfile",
+	// "build": {
+	// 	// Sets the run context to one level up instead of the .devcontainer folder.
+	// 	"context": "..",
+	// 	// Update the 'dockerFile' property if you aren't using the standard 'Dockerfile' filename.
+	// 	"dockerfile": "../Dockerfile"
+	// },
+	// "runArgs": [
+	// 	"--name",
+	// 	"vscode_devcontainer_Gas_Meter_Reader",
+	// 	// "-e",
+	// 	// "SERVER_ROOT=https://example-server.com",
+	// 	// "--env-file",
+	// 	// ".env"
+	// ],
+	// "mounts": [
+	// 	"type=bind,source=${localWorkspaceFolder},target=/work",
+	// 	// Linux
+	// 	// "type=bind,source=/home/${localEnv:USER}/.ssh,target=/root/.ssh",
+	// 	// Windows
+	// 	"type=bind,source=${localEnv:USERPROFILE}\\.ssh,target=/root/.ssh"
+	// ],
+	"dockerComposeFile": [
+		"../test/docker-compose.yaml",
+		"docker-compose.workspace.yaml"
+	],
+	"workspaceFolder": "/workspace",
+	"service": "workspace",
+	"overrideCommand": true,
+	"features": {
+	},
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-azuretools.vscode-docker",
+				"ms-vscode-remote.remote-containers",
+				"python.vscode-python-pack",
+				"mqtt.mqtt-client",
+				"ms-python.python",
+				"shd101wyy.markdown-preview-enhanced",
+				"milovidov.escape-quotes",
+				"mohsen1.prettify-json"
+			]
+		}
+	}
+
+	// Features to add to the dev container. More info: https://containers.dev/features.
+	// "features": {},
+
+	// Use 'forwardPorts' to make a list of ports inside the container available locally.
+	// "forwardPorts": [],
+
+	// Uncomment the next line to run commands after the container is created.
+	// "postCreateCommand": "cat /etc/os-release",
+
+	// Configure tool-specific properties.
+	// "customizations": {},
+
+	// Uncomment to connect as an existing user other than the container default. More info: https://aka.ms/dev-containers-non-root.
+	// "remoteUser": "devcontainer"
+}

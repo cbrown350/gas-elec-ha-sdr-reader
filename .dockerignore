@@ -1,0 +1,6 @@
+test
+.gitignore
+.env
+.vscode
+.devcontainer
+__pycache__

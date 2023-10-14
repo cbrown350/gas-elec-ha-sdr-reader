@@ -1,0 +1,83 @@
+version: "3.9"
+
+services:
+# https://nodered.org/docs/getting-started/docker
+  nodered:
+    container_name: nodered
+    image: nodered/node-red
+    ports:
+      - "1880:1880"
+    volumes:
+      - ./data/nodered:/data
+    user: "${PUID}:${PGID}"
+    depends_on:
+      - mosquitto
+    environment:
+      TZ: "America/Denver"
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "25m"
+        max-file: "10"
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://nodered:1880"]
+      interval: 200s
+      timeout: 200s
+      retries: 5
+
+# https://iotechonline.com/password-protect-your-mosquitto-mqtt-broker/
+  mosquitto:
+    image: eclipse-mosquitto
+    container_name: mosquitto
+    restart: unless-stopped
+    ports:
+      - "1883:1883"
+    volumes:
+      - "./mosquitto:/mosquitto/config"
+      - "./data/mosquitto/data:/mosquitto/data"
+      - "./data/mosquitto/log:/mosquitto/log"
+    environment:
+      - TZ=America/Denver
+    user: "${PUID}:${PGID}"
+    logging:
+      driver: json-file
+      options:
+        max-size: "25m"
+        max-file: "10"
+  # docker exec mosquitto mosquitto_passwd -b /mosquitto/config/password.txt user password
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://mqtt_explorer:4000"]
+      interval: 200s
+      timeout: 200s
+      retries: 5
+  
+  mqtt_explorer:
+    image: smeagolworms4/mqtt-explorer
+    container_name: mqtt_explorer
+    restart: unless-stopped
+    ports:
+      - 4000:4000
+    volumes:
+      - ./data/mqtt_explorer/config:/mqtt-explorer/config
+    environment:
+      - TZ=America/Denver
+      - HTTP_PORT=4000
+      - CONFIG_PATH=/mqtt-explorer/config
+      # - HTTP_USER=
+      # - HTTP_PASSWORD=
+      # - SSL_KEY_PATH=
+      # - SSH_CERT_PATH=
+    user: "${PUID}:${PGID}"
+    depends_on:
+      - mosquitto
+    logging:
+      driver: json-file
+      options:
+        max-size: "25m"
+        max-file: "10"
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4000"]
+      interval: 200s
+      timeout: 200s
+      retries: 5

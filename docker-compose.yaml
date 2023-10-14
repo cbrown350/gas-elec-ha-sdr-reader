@@ -1,0 +1,43 @@
+version: "3.9"
+
+services:
+  gas_electricity_meter_reader:
+    container_name: gas_electricity_meter_reader
+    build: 
+      context: .
+      dockerfile: Dockerfile    
+    environment:
+      TZ: "America/Denver"
+      MQTT_HOST: "192.168.2.189"
+      MQTT_PORT: 1883
+      MQTT_USER: "homeassistant"
+      MQTT_PASSWORD: ${MQTT_PASSWORD}
+      LOG_LEVEL: "INFO"
+      RTL_TCP: '/usr/bin/rtl_tcp -a 127.0.0.1 -p 1234'
+      RTL_MUX: '/usr/local/bin/rtlmux -h 127.0.0.1 -p 1234 -l 2222'
+      RTLAMR: '/usr/local/bin/rtlamr -server=127.0.0.1:2222 -msgtype=scm+,idm --format=json'
+      WATCHED_METERS: |
+        [
+          {
+            "type": "elec",
+            "unit": "kWh",
+            "id": "20190118",
+            "unit_multiplier": 0.01,
+            "rtlsdr_id_name": "ERTSerialNumber",
+            "rtlsdr_value_name": "LastConsumptionCount"
+          },
+          {
+            "type": "gas",
+            "unit": "Dth",
+            "unit_multiplier": 0.00087627,
+            "id": "95851177",
+            "rtlsdr_id_name": "EndpointID",
+            "rtlsdr_value_name": "Consumption"
+          }
+        ]
+    volumes: 
+      - /etc/localtime:/etc/localtime:ro
+      - ./data:/app/data
+    devices:
+      - /dev/bus/usb:/dev/bus/usb
+    network_mode: host

@@ -1,0 +1,14 @@
+version: "3.9"
+services:
+
+  workspace:
+    container_name: workspace
+    build: 
+      context: ..
+      dockerfile: Dockerfile    
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ..:/workspace:cached
+    devices:
+      - /dev/bus/usb
+    command: /bin/sh -c "while sleep 1000; do :; done"  
