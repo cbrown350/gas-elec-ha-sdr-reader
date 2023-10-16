@@ -6,13 +6,17 @@ services:
     build: 
       context: .
       dockerfile: Dockerfile    
+    restart: unless-stopped
+    network_mode: host # used when rtlmux can't bind to host on some platforms
+    # ports:
+      # - 2222:2222 # rtlmux
     environment:
       TZ: "America/Denver"
-      MQTT_HOST: "192.168.2.189"
-      MQTT_PORT: 1883
-      MQTT_USER: "homeassistant"
-      MQTT_PASSWORD: ${MQTT_PASSWORD}
-      LOG_LEVEL: "INFO"
+      MQTT_HOST: "${MQTT_HOST}"
+      MQTT_PORT: ${MQTT_PORT}
+      MQTT_USER: "${MQTT_USER}"
+      MQTT_PASSWORD: "${MQTT_PASSWORD}"
+      LOG_LEVEL: "${LOG_LEVEL}"
       RTL_TCP: '/usr/bin/rtl_tcp -a 127.0.0.1 -p 1234'
       RTL_MUX: '/usr/local/bin/rtlmux -h 127.0.0.1 -p 1234 -l 2222'
       RTLAMR: '/usr/local/bin/rtlamr -server=127.0.0.1:2222 -msgtype=scm+,idm --format=json'
@@ -21,20 +25,22 @@ services:
           {
             "type": "elec",
             "unit": "kWh",
-            "id": "20190118",
             "unit_multiplier": 0.01,
+            "id": "${ELEC_METER_ID}",
             "rtlsdr_id_name": "ERTSerialNumber",
             "rtlsdr_value_name": "LastConsumptionCount",
-            "icon": "mdi:meter-electric"
+            "icon": "mdi:meter-electric",
+            "device_class": "energy"
           },
           {
             "type": "gas",
-            "unit": "Dth",
-            "unit_multiplier": 0.00087627,
-            "id": "95851177",
+            "unit": "m³",
+            "unit_multiplier": 0.028316846592,
+            "id": "${GAS_METER_ID}",
             "rtlsdr_id_name": "EndpointID",
             "rtlsdr_value_name": "Consumption",
-            "icon": "mdi:meter-gas"
+            "icon": "mdi:meter-gas",
+            "device_class": "gas"
           }
         ]
     volumes: 
@@ -42,4 +48,8 @@ services:
       - ./data:/app/data
     devices:
       - /dev/bus/usb:/dev/bus/usb
-    network_mode: host
+    healthcheck:
+      test: [ "CMD", "netstat -an | grep 1234 > /dev/null; if [ 0 != $? ]; then exit 1; else netstat -an | grep 2222 > /dev/null; if [ 0 != $? ]; then exit 1; fi; fi;" ] # make sure both rtlmux and rtl_tcp are running
+      interval: 200s
+      timeout: 200s
+      retries: 5

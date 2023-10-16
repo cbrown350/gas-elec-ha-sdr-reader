@@ -20,7 +20,7 @@ HA_CONFIG_PAYLOAD_ENERGY = '''
                     "name": "Main {meter_type_CAP} Meter Reader",
                     "sw_version": "{SW_VERSION}"
                 }},
-            "device_class": "energy",
+            "device_class": "{meter_device_class}",
             "icon": "{meter_icon}",
             "enabled_by_default": true,
             "object_id": "main_{meter_type}_meter_energy",

@@ -1,8 +1,8 @@
 version: "3.9"
 services:
 
-  workspace:
-    container_name: workspace
+  gas_electricity_meter_reader_workspace:
+    container_name: gas_electricity_meter_reader_workspace
     build: 
       context: ..
       dockerfile: Dockerfile    
