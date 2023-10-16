@@ -1,0 +1,3 @@
+#!/bin/bash
+
+/usr/bin/netstat -ltn | /usr/bin/grep -c ':1234' > /dev/null; if [ 0 != $? ]; then exit 1; else /usr/bin/netstat -tln | /usr/bin/grep -c ':2222' > /dev/null; if [ 0 != $? ]; then exit 1; else exit 0; fi; fi;\": stat /usr/bin/netstat -ltn | /usr/bin/grep -c ':1234' > /dev/null; if [ 0 != $? ]; then exit 1; else /usr/bin/netstat -tln | /usr/bin/grep -c ':2222' > /dev/null; if [ 0 != $? ]; then exit 1; else exit 0; fi; fi;
