@@ -25,6 +25,8 @@ REPO = "https://github.com/cbrown350/gas-elec-ha-sdr-reader"
 DEVICE_ID = "gas_elec_publisher"
 SERIAL_NUM_FILE = '/app/data/serial_num.txt'
 
+TZ = os.getenv('TZ') or settings.TZ if hasattr(settings, 'TZ') else 'UTC'
+logging.Formatter.converter = lambda *args: datetime.now(tz=pytz.timezone(TZ)).timetuple()
 FORMAT = '%(asctime)s %(message)s'
 LOG_LEVEL = os.getenv('LOG_LEVEL') or settings.LOG_LEVEL if hasattr(settings, 'LOG_LEVEL') else 'INFO'
 numeric_log_level = getattr(logging, LOG_LEVEL.upper(), None)
@@ -179,7 +181,7 @@ def main():
             # amrline,rtlamr_err=rtlamr.communicate()
             # amrline = amrline.strip().decode()
             
-            logging.debug(f"{datetime.now().astimezone(pytz.timezone('US/Mountain')).isoformat()}->Received json: {amrline}")
+            logging.debug(f"Received json: {amrline}")
 
             if not amrline:
                 raise ValueError("No data received from rtlamr")
@@ -219,7 +221,7 @@ def main():
                                     'last_seen': data['Time']
                                     }))
                     
-                    logging.debug(f"{datetime.now().astimezone(pytz.timezone('US/Mountain')).isoformat()}->Published topic, meter {meter_id} reading: {current_reading}")   
+                    logging.debug(f"Published topic, meter {meter_id} reading: {current_reading}")   
                     break
             
         except Exception:

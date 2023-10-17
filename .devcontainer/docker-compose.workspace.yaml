@@ -8,7 +8,10 @@ services:
       dockerfile: .devcontainer/Dockerfile # development dockerfile
       # context: ..
       # dockerfile: Dockerfile # production dockerfile
+    environment:
+      - TZ=America/Denver
     volumes:
+      - /etc/localtime:/etc/localtime:ro
       # - /var/run/docker.sock:/var/run/docker.sock
       - ..:/workspace:cached
     devices:
