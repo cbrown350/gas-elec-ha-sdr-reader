@@ -49,4 +49,4 @@ WORKDIR /app
 COPY requirements.txt ./
 
 # generate requirements.txt with 'pigar generate'
-RUN python3 -m pip install .
+RUN python3 -m pip install -r requirements.txt

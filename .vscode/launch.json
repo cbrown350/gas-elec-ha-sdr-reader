@@ -5,16 +5,6 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: gas_elec_publisher.py",
-            "type": "python",
-            "request": "launch",
-            "program": "gas_elec_publisher/gas_elec_publisher.py",
-            "console": "integratedTerminal",
-            "justMyCode": true,
-            "env": {
-            }
-        },
-        {
             "name": "Python: gas_elec_publisher module",
             "type": "python",
             "request": "launch",

@@ -47,14 +47,14 @@
 				"donjayamanne.python-extension-pack"
 			]
 		}
-	}
+	},
 
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [],
 
 	// Uncomment the next line to run commands after the container is created.
-	// "postCreateCommand": "cat /etc/os-release",
+	"postCreateCommand": "cd /workspace && python3 -m pip install .",
 
 	// Configure tool-specific properties.
 	// "customizations": {},
