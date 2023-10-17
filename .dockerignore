@@ -1,6 +1,4 @@
 test
-.git
-.gitignore
 .env
 .vscode
 .devcontainer

@@ -28,7 +28,7 @@ WORKDIR /app
 
 COPY . ./
 
-RUN PBR_VERSION=1.2.3 python3 -m pip install .
+RUN python3 -m pip install .
 
 RUN chmod +x startup.sh healthcheck.sh
 
