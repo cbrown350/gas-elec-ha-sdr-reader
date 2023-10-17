@@ -25,7 +25,7 @@ REPO = "https://github.com/cbrown350/gas-elec-ha-sdr-reader"
 DEVICE_ID = "gas_elec_publisher"
 SERIAL_NUM_FILE = '/app/data/serial_num.txt'
 
-TZ = os.getenv('TZ') or settings.TZ if hasattr(settings, 'TZ') else 'UTC'
+TZ = os.getenv('TZ') or (settings.TZ if hasattr(settings, 'TZ') else 'UTC')
 logging.Formatter.converter = lambda *args: datetime.now(tz=pytz.timezone(TZ)).timetuple()
 FORMAT = '%(asctime)s %(message)s'
 LOG_LEVEL = os.getenv('LOG_LEVEL') or settings.LOG_LEVEL if hasattr(settings, 'LOG_LEVEL') else 'INFO'
@@ -35,6 +35,7 @@ if not isinstance(numeric_log_level, int):
 else:
     logging.basicConfig(encoding='utf-8', level=numeric_log_level, format=FORMAT)
 logging.info(f"Set Log Level: {LOG_LEVEL}")
+logging.info(f"Timezone: {TZ}")
 
 
 SERIAL_NUM = os.getenv('SERIAL_NUM') if os.getenv('SERIAL_NUM') else settings.SERIAL_NUM if hasattr(settings, 'SERIAL_NUM') else None
