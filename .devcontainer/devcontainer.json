@@ -25,12 +25,13 @@
 	// ],
 	"dockerComposeFile": [
 		"../test/docker-compose.yaml",
-		"docker-compose.workspace.yaml"
+		"../.devcontainer/docker-compose.workspace.yaml"
 	],
 	"workspaceFolder": "/workspace",
-	"service": "workspace",
+	"service": "gas_electricity_meter_reader_workspace",
 	"overrideCommand": true,
-	"features": {
+	// Features to add to the dev container. More info: https://containers.dev/features.
+	"features": { "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {} 
 	},
 	"customizations": {
 		"vscode": {
@@ -42,13 +43,12 @@
 				"ms-python.python",
 				"shd101wyy.markdown-preview-enhanced",
 				"milovidov.escape-quotes",
-				"mohsen1.prettify-json"
+				"mohsen1.prettify-json",
+				"donjayamanne.python-extension-pack"
 			]
 		}
 	}
 
-	// Features to add to the dev container. More info: https://containers.dev/features.
-	// "features": {},
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [],

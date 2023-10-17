@@ -3,9 +3,10 @@ version: "3.9"
 services:
   gas_electricity_meter_reader:
     container_name: gas_electricity_meter_reader
-    build: 
-      context: .
-      dockerfile: Dockerfile    
+    # build: 
+    #   context: .
+    #   dockerfile: Dockerfile    
+    image: ghcr.io/github.com/cbrown350/gas-elec-ha-sdr-reader:latest
     restart: unless-stopped
     network_mode: host # used when rtlmux can't bind to host on some platforms
     # ports:
@@ -49,7 +50,7 @@ services:
     devices:
       - /dev/bus/usb:/dev/bus/usb
     healthcheck:
-      test: [ "CMD", "netstat -an | grep 1234 > /dev/null; if [ 0 != $? ]; then exit 1; else netstat -an | grep 2222 > /dev/null; if [ 0 != $? ]; then exit 1; fi; fi;" ] # make sure both rtlmux and rtl_tcp are running
-      interval: 200s
-      timeout: 200s
-      retries: 5
+      test: [ "CMD", "/app/healthcheck.sh" ] # make sure both rtlmux and rtl_tcp are running, adjust ports in this file if needed
+      interval: 10s
+      timeout: 10s
+      retries: 3

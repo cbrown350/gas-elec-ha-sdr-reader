@@ -5,9 +5,11 @@ services:
     container_name: gas_electricity_meter_reader_workspace
     build: 
       context: ..
-      dockerfile: Dockerfile    
+      dockerfile: .devcontainer/Dockerfile # development dockerfile
+      # context: ..
+      # dockerfile: Dockerfile # production dockerfile
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+      # - /var/run/docker.sock:/var/run/docker.sock
       - ..:/workspace:cached
     devices:
       - /dev/bus/usb

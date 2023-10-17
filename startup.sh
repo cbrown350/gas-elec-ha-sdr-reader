@@ -1,3 +1,3 @@
-#!/bin/bash
+#!/bin/sh
 
-/usr/bin/python3 -u gas_elec_publisher.py
+gas_elec_publisher

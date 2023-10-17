@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+ 
 import subprocess
 import signal
 import sys
@@ -7,13 +9,16 @@ import time
 import pytz
 from datetime import datetime
 import paho.mqtt.publish as publish
-import settings
+import gas_elec_publisher.settings as settings
 import json
 import traceback
 import logging
-import mqtt_config as ha
+import gas_elec_publisher.mqtt_config as ha
+import importlib.metadata
 
-SW_VERSION = "1.0"
+__version__ = importlib.metadata.version('gas-elec-ha-sdr-reader')
+
+SW_VERSION = __version__
 VENDOR_NAME = "cbrown350"
 VENDOR_ID = "io-github-cbrown350"
 REPO = "https://github.com/cbrown350/gas-elec-ha-sdr-reader"
@@ -158,86 +163,91 @@ def start_rtlamr():
         stdin=None, stderr=subprocess.PIPE, close_fds=True)
     logging.info("Started rtlamr")
 
-send_mqtt_config()
-start_rtltcp()
-time.sleep(2)
-start_rtlmux()    
-time.sleep(2)
-start_rtlamr()
-time.sleep(2)
+def main():
+    send_mqtt_config()
+    start_rtltcp()
+    time.sleep(2)
+    start_rtlmux()    
+    time.sleep(2)
+    start_rtlamr()
+    time.sleep(2)
 
-while True:
-    rtlamr_err = None
-    try:
-        amrline = rtlamr.stdout.readline().strip().decode()
-        # amrline,rtlamr_err=rtlamr.communicate()
-        # amrline = amrline.strip().decode()
-        
-        logging.debug(f"{datetime.now().astimezone(pytz.timezone('US/Mountain')).isoformat()}->Received json: {amrline}")
+    while True:
+        rtlamr_err = None
+        try:
+            amrline = rtlamr.stdout.readline().strip().decode()
+            # amrline,rtlamr_err=rtlamr.communicate()
+            # amrline = amrline.strip().decode()
+            
+            logging.debug(f"{datetime.now().astimezone(pytz.timezone('US/Mountain')).isoformat()}->Received json: {amrline}")
 
-        if not amrline:
-            raise ValueError("No data received from rtlamr")
-        
-        data = json.loads(amrline)
-        rtlamr.stderr.flush() # clear any error streams since just messages if json was valid
-        if 'Message' not in data:
-            logging.debug("Received amr data, but no Message key found")
-            continue
-        msg = data['Message']
-        
-        for meter in WATCHED_METERS:
-            if meter['rtlsdr_id_name'] in msg and meter['rtlsdr_value_name'] in msg:
-                meter_id = msg[meter['rtlsdr_id_name']]
-                if str(meter_id) != meter['id']:
-                    continue
-                current_reading = msg[meter['rtlsdr_value_name']]
-                meter_type = meter['type']
-                meter_units = meter['unit']
-                multiplier = meter['unit_multiplier']
-                
-                linkquality_val = 'unknown'
-                try:
-                    linkquality = subprocess.Popen('/bin/cat /proc/net/wireless | tail -n -1 | tr -s - | cut -d" " -f 8',
-                                                    shell=True,stdin=None, stdout=subprocess.PIPE, stderr=subprocess.PIPE, close_fds=True)
-                    output,err=linkquality.communicate()
-                    if output:
-                        linkquality_val = int(output.decode().strip().replace('.', ''))
-                except Exception:
-                    logging.error('Error getting linkquality')
-                    logging.error(traceback.format_exc())
+            if not amrline:
+                raise ValueError("No data received from rtlamr")
+            
+            data = json.loads(amrline)
+            rtlamr.stderr.flush() # clear any error streams since just messages if json was valid
+            if 'Message' not in data:
+                logging.debug("Received amr data, but no Message key found")
+                continue
+            msg = data['Message']
+            
+            for meter in WATCHED_METERS:
+                if meter['rtlsdr_id_name'] in msg and meter['rtlsdr_value_name'] in msg:
+                    meter_id = msg[meter['rtlsdr_id_name']]
+                    if str(meter_id) != meter['id']:
+                        continue
+                    current_reading = msg[meter['rtlsdr_value_name']]
+                    meter_type = meter['type']
+                    meter_units = meter['unit']
+                    multiplier = meter['unit_multiplier']
                     
-                publish_mqtt(ha.STATE_TOPIC.format(VENDOR_ID=VENDOR_ID, meter_type=meter_type, meter_id=meter_id), 
-                             payload=json.dumps({
-                                 'energy': round(current_reading * multiplier, 6),
-                                 'linkquality': linkquality_val,
-                                 'last_seen': data['Time']
-                                 }))
+                    linkquality_val = 'unknown'
+                    try:
+                        linkquality = subprocess.Popen('/bin/cat /proc/net/wireless | tail -n -1 | tr -s - | cut -d" " -f 8',
+                                                        shell=True,stdin=None, stdout=subprocess.PIPE, stderr=subprocess.PIPE, close_fds=True)
+                        output,err=linkquality.communicate()
+                        if output:
+                            linkquality_val = int(output.decode().strip().replace('.', ''))
+                    except Exception:
+                        logging.error('Error getting linkquality')
+                        logging.error(traceback.format_exc())
+                        
+                    publish_mqtt(ha.STATE_TOPIC.format(VENDOR_ID=VENDOR_ID, meter_type=meter_type, meter_id=meter_id), 
+                                payload=json.dumps({
+                                    'energy': round(current_reading * multiplier, 6),
+                                    'linkquality': linkquality_val,
+                                    'last_seen': data['Time']
+                                    }))
+                    
+                    logging.debug(f"{datetime.now().astimezone(pytz.timezone('US/Mountain')).isoformat()}->Published topic, meter {meter_id} reading: {current_reading}")   
+                    break
+            
+        except Exception:
+            logging.error(traceback.format_exc())
+            time.sleep(2)
+            if rtltcp.poll() is not None:
+                if rtltcp.stderr.readable():
+                    _,err = rtltcp.communicate()
+                    if err:
+                        logging.error(f"rtl_tcp exited with error: {err.strip().decode()}")
+                logging.error("rtl_tcp was not running, restarting...")
+                start_rtltcp()
+                time.sleep(3)
+            if rtlmux.poll() is not None:
+                if rtlmux.stderr.readable():
+                    _,err = rtlmux.communicate()
+                    if err:
+                        logging.error(f"rtl_tcp exited with error: {err.strip().decode()}")
+                logging.error("rtl_mux was not running, restarting...")
+                start_rtlmux()
+                time.sleep(3)
+            if rtlamr.poll() is not None:
+                if rtlamr.stderr.readable():
+                    logging.error(f"rtlamr exited with error: {rtlamr.stderr.read().strip().decode()}")
+                logging.error("rtlamr was not running, restarting...")
+                start_rtlamr()
+                time.sleep(3)
                 
-                logging.debug(f"{datetime.now().astimezone(pytz.timezone('US/Mountain')).isoformat()}->Published topic, meter {meter_id} reading: {current_reading}")   
-                break
-        
-    except Exception:
-        logging.error(traceback.format_exc())
-        time.sleep(2)
-        if rtltcp.poll() is not None:
-            if rtltcp.stderr.readable():
-                _,err = rtltcp.communicate()
-                if err:
-                    logging.error(f"rtl_tcp exited with error: {err.strip().decode()}")
-            logging.error("rtl_tcp was not running, restarting...")
-            start_rtltcp()
-            time.sleep(3)
-        if rtlmux.poll() is not None:
-            if rtlmux.stderr.readable():
-                _,err = rtlmux.communicate()
-                if err:
-                    logging.error(f"rtl_tcp exited with error: {err.strip().decode()}")
-            logging.error("rtl_mux was not running, restarting...")
-            start_rtlmux()
-            time.sleep(3)
-        if rtlamr.poll() is not None:
-            if rtlamr.stderr.readable():
-                logging.error(f"rtlamr exited with error: {rtlamr.stderr.read().strip().decode()}")
-            logging.error("rtlamr was not running, restarting...")
-            start_rtlamr()
-            time.sleep(3)
+
+if __name__ == '__main__':
+    main()                
