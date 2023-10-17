@@ -37,6 +37,8 @@ else:
 logging.info(f"Set Log Level: {LOG_LEVEL}")
 logging.info(f"Timezone: {TZ}")
 
+logging.info(f"SW_VERSION: {SW_VERSION}")
+
 
 SERIAL_NUM = os.getenv('SERIAL_NUM') if os.getenv('SERIAL_NUM') else settings.SERIAL_NUM if hasattr(settings, 'SERIAL_NUM') else None
 if SERIAL_NUM:
