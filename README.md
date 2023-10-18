@@ -1,6 +1,6 @@
 <p align="center">
   <a href="" rel="noopener">
- <img width=200px height=200px src="../media/twitter-scrape-podcast-logo.png?raw=true"></a>
+ <img width=200px height=200px alt=" " src="https://github.com/cbrown350/gas-elec-ha-sdr-reader/blob/master/gas-elec-ha-sdr-reader-logo.png?raw=true"></a>
 </p>
 
 <h3 align="center">gas-elec-ha-sdr-reader</h3>
@@ -22,8 +22,8 @@
 - [📝 Table of Contents](#-table-of-contents)
 - [🧐 About ](#-about-)
 - [🏁 Getting Started ](#-getting-started-)
-  - [Prerequisites](#prerequisites)
-  - [Configuration](#configuration)
+- [<img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/list-check.svg" width="15" height="15"> Prerequisites](#prerequisites)
+- [<img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/gears.svg" width="15" height="15"> Configuration](#configuration)
 
 ## 🧐 About <a name = "about"></a>
 
