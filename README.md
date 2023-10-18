@@ -44,7 +44,7 @@ docker-compose up -d
 docker-compose logs -f
 ```
 
-### Prerequisites
+### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/list-check.svg" width="15" height="15"> Prerequisites
 
 This project only requires docker to be installed if you use the docker-compose file. If you are not using Docker, you will need to install the following dependencies:
 
@@ -55,7 +55,7 @@ This project only requires docker to be installed if you use the docker-compose 
 
 See the Dockerfile for the commands to install these and any other dependencies.
 
-### Configuration
+### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/gears.svg" width="15" height="15"> Configuration
 There are a few environment variables you can set to configure the program:
 
 | Variable | Description | Default |
