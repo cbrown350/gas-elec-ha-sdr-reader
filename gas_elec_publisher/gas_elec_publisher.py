@@ -13,6 +13,7 @@ import gas_elec_publisher.settings as settings
 import json
 import traceback
 import logging
+from rich.logging import RichHandler
 import gas_elec_publisher.mqtt_config as ha
 import importlib.metadata
 
@@ -27,13 +28,14 @@ SERIAL_NUM_FILE = '/app/data/serial_num.txt'
 
 TZ = os.getenv('TZ') or (settings.TZ if hasattr(settings, 'TZ') else 'UTC')
 logging.Formatter.converter = lambda *args: datetime.now(tz=pytz.timezone(TZ)).timetuple()
-FORMAT = '%(asctime)s - [%(levelname)-8s] %(message)s'
+FORMAT = '%(message)s'
 LOG_LEVEL = os.getenv('LOG_LEVEL') or settings.LOG_LEVEL if hasattr(settings, 'LOG_LEVEL') else 'INFO'
 numeric_log_level = getattr(logging, LOG_LEVEL.upper(), None)
 if not isinstance(numeric_log_level, int):
     logging.error('Invalid log level: %s' % LOG_LEVEL)
 else:
-    logging.basicConfig(encoding='utf-8', level=numeric_log_level, format=FORMAT)
+    logging.basicConfig(encoding='utf-8', level=numeric_log_level, format=FORMAT, handlers=[RichHandler()])
+logging = logging.getLogger("rich")
 logging.info(f"Set Log Level: {LOG_LEVEL}")
 logging.info(f"Timezone: {TZ}")
 
@@ -224,7 +226,7 @@ def main():
                                     'last_seen': data['Time']
                                     }))
                     
-                    logging.debug(f"Published topic, meter {meter_id} reading: {current_reading}")   
+                    logging.info(f"Published topic, meter {meter_id} reading: {current_reading}")   
                     break
             
         except Exception:
