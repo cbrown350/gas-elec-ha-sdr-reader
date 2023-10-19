@@ -9,7 +9,7 @@ import time
 import pytz
 from datetime import datetime
 import paho.mqtt.publish as publish
-import gas_elec_publisher.settings as settings
+import settings as settings
 import json
 import traceback
 import logging
@@ -67,7 +67,7 @@ try:
     WATCHED_METERS = os.getenv("WATCHED_METERS") if os.getenv("WATCHED_METERS") \
             else settings.WATCHED_METERS if settings.WATCHED_METERS \
             else sys.exit("No WATCHED_METERS defined in settings.py or env")
-    logging.info(f"Monitoring WATCHED_METERS: {WATCHED_METERS}")
+    logging.info(f"Monitoring WATCHED_METERS: \n{WATCHED_METERS}")
     WATCHED_METERS = json.loads(WATCHED_METERS)
 except json.decoder.JSONDecodeError:
     sys.exit("WATCHED_METERS is not valid JSON")
