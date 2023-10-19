@@ -12,6 +12,7 @@ WORKDIR /root/rtlmux
 COPY --from=builder /root/rtlmux /root/rtlmux
 RUN install rtlmux /usr/local/bin && rm -rf /root/rtlmux
 
+WORKDIR /root
 RUN apk add --no-cache python3 rtl-sdr libevent curl go git && \
     export GO111MODULE=on && \
     go mod init rtlamr && \
