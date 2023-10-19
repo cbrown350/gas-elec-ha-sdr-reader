@@ -60,11 +60,11 @@ There are a few environment variables you can set to configure the program:
 
 | Variable | Description | Default |
 | :-------- | ----------- | ------- |
-| MQTT_HOST | MQTT broker host | none, you must set it using a .env file, CLI or in docker-compose.yml |
+| MQTT_HOST | MQTT broker host | mosquitto |
 | MQTT_PORT | MQTT broker port | 1883 |
-| MQTT_USERNAME | MQTT broker username | none, you must set it using a .env file, CLI or in docker-compose.yml |
-| MQTT_PASSWORD | MQTT broker password | none, you must set it using a .env file, CLI or in docker-compose.yml |
-| LOGGING_LEVEL | logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL) | INFO |
+| MQTT_USERNAME | MQTT broker username | mosquitto |
+| MQTT_PASSWORD | MQTT broker password | mosquitto |
+| LOGGING_LEVEL | logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL) | DEBUG |
 | TZ | timezone | America/Denver |
 | RTL_TCP | path to rtl_tcp binary and options | /usr/bin/rtl_tcp -a 127.0.0.1 -p 1234 |
 | RTLMUX | path to rtlmux binary and options | /usr/local/bin/rtlmux -h 127.0.0.1 -p 1234 -l 2222 |
