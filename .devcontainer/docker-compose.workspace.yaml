@@ -13,6 +13,7 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       # - /var/run/docker.sock:/var/run/docker.sock
+      - ../data:/app/data
       - ..:/workspace:cached
     devices:
       - /dev/bus/usb
