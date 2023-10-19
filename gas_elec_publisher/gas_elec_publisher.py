@@ -9,7 +9,7 @@ import time
 import pytz
 from datetime import datetime
 import paho.mqtt.publish as publish
-import settings as settings
+import gas_elec_publisher.settings as settings
 import json
 import traceback
 import logging
