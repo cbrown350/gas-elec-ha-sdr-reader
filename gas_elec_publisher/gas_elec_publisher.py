@@ -27,7 +27,7 @@ SERIAL_NUM_FILE = '/app/data/serial_num.txt'
 
 TZ = os.getenv('TZ') or (settings.TZ if hasattr(settings, 'TZ') else 'UTC')
 logging.Formatter.converter = lambda *args: datetime.now(tz=pytz.timezone(TZ)).timetuple()
-FORMAT = '%(asctime)s %(message)s'
+FORMAT = '%(asctime)s - [%(levelname)-8s] %(message)s'
 LOG_LEVEL = os.getenv('LOG_LEVEL') or settings.LOG_LEVEL if hasattr(settings, 'LOG_LEVEL') else 'INFO'
 numeric_log_level = getattr(logging, LOG_LEVEL.upper(), None)
 if not isinstance(numeric_log_level, int):
