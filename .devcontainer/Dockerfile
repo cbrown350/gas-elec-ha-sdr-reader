@@ -42,6 +42,12 @@ RUN rm /usr/bin/python3 && ln -s /usr/bin/python3.11 /usr/bin/python3
 
 RUN python3 -m pip install --upgrade pip setuptools wheel pigar pbr
 
+# https://github.com/nektos/act -> run github actions locally
+RUN curl -s https://raw.githubusercontent.com/nektos/act/master/install.sh | bash && install ./bin/act /usr/local/bin/act && rm -rf ./bin
+# use: act --secret-file .secrets
+# issues:
+# https://github.com/nektos/act/issues/1166 -> (manually pull image and add --pull=false to ~./actrc)
+
 ENV EDITOR=nano  
 
 WORKDIR /app
