@@ -44,7 +44,8 @@
 				"shd101wyy.markdown-preview-enhanced",
 				"milovidov.escape-quotes",
 				"mohsen1.prettify-json",
-				"donjayamanne.python-extension-pack"
+				"donjayamanne.python-extension-pack",
+				"github.vscode-github-actions"
 			]
 		}
 	},
