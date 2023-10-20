@@ -5,7 +5,30 @@ test
 __pycache__
 Dockerfile
 data
-docker-compose.yaml
 docker_build_push.sh
 .dockerignore
 .secrets
+
+.stestr/
+.tox
+.venv
+.*.swp
+.coverage
+cover
+
+# Packages/installer info
+*.egg
+*.egg-info
+dist
+build
+eggs
+parts
+bin
+var
+sdist
+develop-eggs
+.installed.cfg
+
+# Editor files
+*~
+*.swp
