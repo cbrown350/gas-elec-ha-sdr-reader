@@ -207,11 +207,8 @@ def main():
     time.sleep(2)
 
     while True:
-        rtlamr_err = None
         try:
             amrline = rtlamr.stdout.readline().strip().decode()
-            # amrline,rtlamr_err=rtlamr.communicate()
-            # amrline = amrline.strip().decode()
             
             logger.debug(f"Received json: {amrline}")
 
