@@ -10,7 +10,7 @@
             "request": "launch",
             "module": "gas_elec_publisher.gas_elec_publisher",
             "console": "integratedTerminal",
-            "justMyCode": true,
+            "justMyCode": false,
             "env": {
             }
         }
