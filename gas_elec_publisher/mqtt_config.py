@@ -106,5 +106,5 @@ HA_CONFIG_PAYLOAD_WIFISIGNAL = '''
         "state_topic": "{STATE_TOPIC}",
         "unique_id": "{UNIQUE_ID}_{meter_type}_wifisignal",
         "unit_of_measurement": "dBm",
-        "value_template": "{{{{ value_json.wifisignal }}}}"}}
+        "value_template": "{{{{ value_json.wifi_signal }}}}"}}
     '''
