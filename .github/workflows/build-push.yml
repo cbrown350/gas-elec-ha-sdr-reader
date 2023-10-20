@@ -1,17 +1,10 @@
 name: Build and Deploy
 
-on:
-  push:
-    branches:
-    - master
-    tags:
-    - "v*"
-  pull_request:
-    branches:
-    - 'master'            
+on: push     
 
 jobs:
-  build-and-deploy:
+  build-and-push-image:
+    if: github.ref == 'refs/heads/master' && github.ref_type == 'tag'
     runs-on: ubuntu-latest
     steps:
       
@@ -49,7 +42,6 @@ jobs:
         
       - 
         name: Login to image repository
-        if: github.ref_type == 'tag'
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
@@ -69,7 +61,6 @@ jobs:
 
       - 
         name: Create Release
-        if: github.ref_type == 'tag'
         uses: ncipollo/release-action@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
