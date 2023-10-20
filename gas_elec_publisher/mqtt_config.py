@@ -37,42 +37,6 @@ HA_CONFIG_PAYLOAD_ENERGY = '''
         "value_template": "{{{{ value_json.energy }}}}"}}
     '''
 
-HA_CONFIG_TOPIC_LINKQUALITY = "homeassistant/sensor/{UNIQUE_ID}/{meter_type}_{meter_id}_linkquality/config"
-HA_CONFIG_PAYLOAD_LINKQUALITY = '''
-    {{
-        "availability":
-            [ 
-                {{
-                    "topic": "{AVAILABLE_TOPIC}"
-                }} 
-            ],
-        "availability_mode": "all",
-        "device":
-            {{
-                "identifiers": [ "{UNIQUE_ID}_{meter_type}" ],
-                "manufacturer": "{VENDOR_NAME}",
-                "model": "RTL SDR wireless electrical power and gas company meter reader ({DEVICE_ID})",
-                "name": "Main {meter_type_CAP} Meter Reader",
-                "sw_version": "{SW_VERSION}"
-            }},
-        "enabled_by_default": true,
-        "entity_category": "diagnostic",
-        "icon": "mdi:signal",
-        "name": "Linkquality",
-        "object_id": "main_{meter_type}_meter_linkquality",
-        "origin":
-            {{
-                "name": "{VENDOR_ID}",
-                "sw": "{SW_VERSION}",
-                "url": "{REPO}"
-            }},
-        "state_class": "measurement",
-        "state_topic": "{STATE_TOPIC}",
-        "unique_id": "{UNIQUE_ID}_{meter_type}_linkquality",
-        "unit_of_measurement": "dBm",
-        "value_template": "{{{{ value_json.linkquality }}}}"}}
-    '''
-
 HA_CONFIG_TOPIC_LASTSEEN = "homeassistant/sensor/{UNIQUE_ID}/{meter_type}_{meter_id}_last_seen/config"
 HA_CONFIG_PAYLOAD_LASTSEEN = '''
     {{
@@ -106,4 +70,41 @@ HA_CONFIG_PAYLOAD_LASTSEEN = '''
         "state_topic": "{STATE_TOPIC}",
         "unique_id": "{UNIQUE_ID}_{meter_type}_last_seen",
         "value_template": "{{{{ value_json.last_seen }}}}"}}
+    '''
+
+HA_CONFIG_TOPIC_WIFISIGNAL = "homeassistant/sensor/{UNIQUE_ID}/{meter_type}_{meter_id}_wifisignal/config"
+HA_CONFIG_PAYLOAD_WIFISIGNAL = '''
+    {{
+        "availability":
+            [ 
+                {{
+                    "topic": "{AVAILABLE_TOPIC}"
+                }} 
+            ],
+        "availability_mode": "all",
+        "device":
+            {{
+                "identifiers": [ "{UNIQUE_ID}_{meter_type}" ],
+                "manufacturer": "{VENDOR_NAME}",
+                "model": "RTL SDR wireless electrical power and gas company meter reader ({DEVICE_ID})",
+                "name": "Main {meter_type_CAP} Meter Reader",
+                "sw_version": "{SW_VERSION}"
+            }},
+        "device_class": "signal_strength",
+        "enabled_by_default": true,
+        "entity_category": "diagnostic",
+        "icon": "mdi:wifi",
+        "name": "Wifi Signal",
+        "object_id": "main_{meter_type}_meter_wifisignal",
+        "origin":
+            {{
+                "name": "{VENDOR_ID}",
+                "sw": "{SW_VERSION}",
+                "url": "{REPO}"
+            }},
+        "state_class": "measurement",
+        "state_topic": "{STATE_TOPIC}",
+        "unique_id": "{UNIQUE_ID}_{meter_type}_wifisignal",
+        "unit_of_measurement": "dBm",
+        "value_template": "{{{{ value_json.wifisignal }}}}"}}
     '''

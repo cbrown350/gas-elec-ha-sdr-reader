@@ -139,6 +139,20 @@ def main():
 
     signal.signal(signal.SIGTERM, shutdown)
     signal.signal(signal.SIGINT, shutdown)
+    
+    def getWifiSignal():
+        wifisignal_val = None
+        try:
+            wifisignal = subprocess.Popen('/bin/cat /proc/net/wireless | tail -n -1 | tr -s - | cut -d" " -f 8',
+                                            shell=True,stdin=None, stdout=subprocess.PIPE, stderr=subprocess.PIPE, close_fds=True)
+            output,err=wifisignal.communicate()
+            if output and not err:
+                wifisignal_val = int(output.decode().strip().replace('.', ''))
+            if err:
+                logger.info(f"Error getting Wifi signal, will not continue to report: {err.decode().strip()}")
+        except Exception as ex:
+            logger.exception(f'Error running wifi signal value command: {str(ex)}')
+        return wifisignal_val
 
 
     auth = None
@@ -152,6 +166,7 @@ def main():
                 values = {}
                 values['AVAILABLE_TOPIC'] = ha.AVAILABLE_TOPIC.format(VENDOR_ID=VENDOR_ID, 
                                                                       DEVICE_ID=DEVICE_ID, SERIAL_NUM=SERIAL_NUM)
+                wifi_signal = getWifiSignal()
                 for meter in WATCHED_METERS:
                     logger.info(f"Sending MQTT Config for meter {meter['id']}")
                     values = { **values, **dict(VENDOR_ID=VENDOR_ID, VENDOR_NAME=VENDOR_NAME, SW_VERSION=SW_VERSION, 
@@ -165,12 +180,13 @@ def main():
                     msgs.append(dict(topic=ha.HA_CONFIG_TOPIC_ENERGY.format(**values), 
                                 payload=ha.HA_CONFIG_PAYLOAD_ENERGY.format(**values), 
                                 qos=1, retain=True))
-                    msgs.append(dict(topic=ha.HA_CONFIG_TOPIC_LINKQUALITY.format(**values), 
-                                payload=ha.HA_CONFIG_PAYLOAD_LINKQUALITY.format(**values), 
-                                qos=1, retain=True))
                     msgs.append(dict(topic=ha.HA_CONFIG_TOPIC_LASTSEEN.format(**values), 
                                 payload=ha.HA_CONFIG_PAYLOAD_LASTSEEN.format(**values), 
                                 qos=1, retain=True))  
+                    if wifi_signal:
+                        msgs.append(dict(topic=ha.HA_CONFIG_TOPIC_WIFISIGNAL.format(**values), 
+                                    payload=ha.HA_CONFIG_PAYLOAD_WIFISIGNAL.format(**values), 
+                                    qos=1, retain=True))
                     
                 if msgs:              
                     # birth message    
@@ -241,22 +257,14 @@ def main():
                         continue
                     current_reading = msg[meter['rtlsdr_value_name']]
                     
-                    linkquality_val = 'unknown'
-                    try:
-                        linkquality = subprocess.Popen('/bin/cat /proc/net/wireless | tail -n -1 | tr -s - | cut -d" " -f 8',
-                                                        shell=True,stdin=None, stdout=subprocess.PIPE, stderr=subprocess.PIPE, close_fds=True)
-                        output,err=linkquality.communicate()
-                        if output:
-                            linkquality_val = int(output.decode().strip().replace('.', ''))
-                    except Exception as ex:
-                        logger.exception(f'Error getting linkquality: {str(ex)}')
+                    payload = { 'energy': round(current_reading * meter['unit_multiplier'], 6),
+                                'last_seen': data['Time'] }
+                    wifi_signal = getWifiSignal()
+                    if wifi_signal:
+                        payload['wifi_signal'] = wifi_signal
                         
                     publish_mqtt(ha.STATE_TOPIC.format(VENDOR_ID=VENDOR_ID, meter_type=meter['type'], meter_id=meter_id), 
-                                payload=json.dumps({
-                                    'energy': round(current_reading * meter['unit_multiplier'], 6),
-                                    'linkquality': linkquality_val,
-                                    'last_seen': data['Time']
-                                    }),
+                                payload=json.dumps(),
                                 will=dict(topic=lwt_topic, payload="offline", qos=1, retain=False))
                     
                     logger.info(f"Published new reading, meter {meter_id} reading: {current_reading}")   
