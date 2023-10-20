@@ -1,6 +1,6 @@
 
 STATE_TOPIC = "{VENDOR_ID}/main_{meter_type}_meter_reader_{meter_id}"
-AVAILABLE_TOPIC = "{VENDOR_ID}/main_{meter_type}_meter_reader/availability"
+AVAILABLE_TOPIC = "{VENDOR_ID}/{DEVICE_ID}_{SERIAL_NUM}/availability"
 
 HA_CONFIG_TOPIC_ENERGY = "homeassistant/sensor/{UNIQUE_ID}/{meter_type}_{meter_id}_energy/config"
 HA_CONFIG_PAYLOAD_ENERGY = '''
