@@ -43,7 +43,7 @@ HA_CONFIG_PAYLOAD_LINKQUALITY = '''
         "availability":
             [ 
                 {{
-                    "topic": "{VENDOR_ID}/main_{meter_type}_meter_reader/availability"
+                    "topic": "{AVAILABLE_TOPIC}"
                 }} 
             ],
             "availability_mode": "all",
@@ -79,7 +79,7 @@ HA_CONFIG_PAYLOAD_LASTSEEN = '''
         "availability":
             [ 
                 {{
-                    "topic": "{VENDOR_ID}/main_{meter_type}_meter_reader/availability"
+                    "topic": "{AVAILABLE_TOPIC}"
                 }} 
             ],
             "availability_mode": "all",
