@@ -190,10 +190,9 @@ def main():
                     msgs.append(dict(topic=ha.HA_CONFIG_TOPIC_LASTSEEN.format(**values), 
                                 payload=ha.HA_CONFIG_PAYLOAD_LASTSEEN.format(**values), 
                                 qos=1, retain=True))  
-                    if wifi_signal:
-                        msgs.append(dict(topic=ha.HA_CONFIG_TOPIC_WIFISIGNAL.format(**values), 
-                                    payload=ha.HA_CONFIG_PAYLOAD_WIFISIGNAL.format(**values), 
-                                    qos=1, retain=True))
+                    msgs.append(dict(topic=ha.HA_CONFIG_TOPIC_WIFISIGNAL.format(**values), 
+                                payload=ha.HA_CONFIG_PAYLOAD_WIFISIGNAL.format(**values) if wifi_signal else None, 
+                                qos=1, retain=True))
                     
                 if msgs:              
                     # birth message    
