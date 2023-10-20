@@ -140,16 +140,22 @@ def main():
     signal.signal(signal.SIGTERM, shutdown)
     signal.signal(signal.SIGINT, shutdown)
     
+    global is_wifi
+    is_wifi = True
     def getWifiSignal():
+        global is_wifi
         wifisignal_val = None
         try:
             wifisignal = subprocess.Popen('/bin/cat /proc/net/wireless | tail -n -1 | tr -s - | cut -d" " -f 8',
                                             shell=True,stdin=None, stdout=subprocess.PIPE, stderr=subprocess.PIPE, close_fds=True)
             output,err=wifisignal.communicate()
+            if err and is_wifi:
+                logger.info(f"Error getting Wifi signal, will not continue to attempt to report: {err.decode().strip()}")
             if output and not err:
                 wifisignal_val = int(output.decode().strip().replace('.', ''))
-            if err:
-                logger.info(f"Error getting Wifi signal, will not continue to report: {err.decode().strip()}")
+                is_wifi = True;
+            else:
+                is_wifi = False;
         except Exception as ex:
             logger.exception(f'Error running wifi signal value command: {str(ex)}')
         return wifisignal_val
@@ -166,7 +172,8 @@ def main():
                 values = {}
                 values['AVAILABLE_TOPIC'] = ha.AVAILABLE_TOPIC.format(VENDOR_ID=VENDOR_ID, 
                                                                       DEVICE_ID=DEVICE_ID, SERIAL_NUM=SERIAL_NUM)
-                wifi_signal = getWifiSignal()
+                if is_wifi:
+                    wifi_signal = getWifiSignal()
                 for meter in WATCHED_METERS:
                     logger.info(f"Sending MQTT Config for meter {meter['id']}")
                     values = { **values, **dict(VENDOR_ID=VENDOR_ID, VENDOR_NAME=VENDOR_NAME, SW_VERSION=SW_VERSION, 
@@ -259,12 +266,13 @@ def main():
                     
                     payload = { 'energy': round(current_reading * meter['unit_multiplier'], 6),
                                 'last_seen': data['Time'] }
-                    wifi_signal = getWifiSignal()
-                    if wifi_signal:
-                        payload['wifi_signal'] = wifi_signal
+                    if is_wifi:
+                        wifi_signal = getWifiSignal()
+                        if wifi_signal:
+                            payload['wifi_signal'] = wifi_signal
                         
                     publish_mqtt(ha.STATE_TOPIC.format(VENDOR_ID=VENDOR_ID, meter_type=meter['type'], meter_id=meter_id), 
-                                payload=json.dumps(),
+                                payload=json.dumps(payload),
                                 will=dict(topic=lwt_topic, payload="offline", qos=1, retain=False))
                     
                     logger.info(f"Published new reading, meter {meter_id} reading: {current_reading}")   

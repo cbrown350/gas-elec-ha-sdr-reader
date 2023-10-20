@@ -94,7 +94,7 @@ HA_CONFIG_PAYLOAD_WIFISIGNAL = '''
         "enabled_by_default": true,
         "entity_category": "diagnostic",
         "icon": "mdi:wifi",
-        "name": "Wifi Signal",
+        "name": "WiFi Signal",
         "object_id": "main_{meter_type}_meter_wifisignal",
         "origin":
             {{
