@@ -11,9 +11,7 @@ from datetime import datetime
 import paho.mqtt.publish as publish
 import gas_elec_publisher.settings as settings
 import json
-import traceback
 import logging
-from termcolor import colored
 from rich.logging import RichHandler
 import gas_elec_publisher.mqtt_config as ha
 import importlib.metadata
@@ -100,7 +98,7 @@ else:
         logger.info(f'Using newly created serial number "{SERIAL_NUM}" stored in {SERIAL_NUM_FILE}')
 UNIQUE_ID = f"{VENDOR_ID}_{DEVICE_ID}_{SERIAL_NUM}"
 
-# get watched meters from env or settings.py
+# get values for meters to monitor from env or settings.py
 WATCHED_METERS = []
 try:
     WATCHED_METERS = os.getenv("WATCHED_METERS") if os.getenv("WATCHED_METERS") \
@@ -133,7 +131,7 @@ def shutdown(signum, frame):
             publish.single(topic=ha.AVAILABLE_TOPIC.format(VENDOR_ID=VENDOR_ID, meter_type=meter['type']), 
                         payload='offline', qos=1, hostname=MQTT_HOST, port=int(MQTT_PORT), auth=auth, retain=True)
     except Exception as ex:
-        logger.error(f"MQTT Publish offline Failed: {str(ex)}")
+        logger.exception(f"MQTT Publish offline Failed: {str(ex)}")
         
     sys.exit(0)
 
@@ -150,46 +148,35 @@ def send_mqtt_config():
         try:
             for meter in WATCHED_METERS:
                 logger.info(f"Sending MQTT Config for meter {meter['id']}")
-                publish.single(topic=ha.HA_CONFIG_TOPIC_ENERGY.format(UNIQUE_ID=UNIQUE_ID, meter_type=meter['type'], meter_id=meter['id']), 
-                               payload=ha.HA_CONFIG_PAYLOAD_ENERGY.format(STATE_TOPIC=ha.STATE_TOPIC.format(VENDOR_ID=VENDOR_ID, 
-                                                                                                      meter_type=meter['type'], 
-                                                                                                      meter_id=meter['id']), 
-                                                                        AVAILABLE_TOPIC=ha.AVAILABLE_TOPIC.format(VENDOR_ID=VENDOR_ID,meter_type=meter['type']),
-                                                                        VENDOR_NAME=VENDOR_NAME, SW_VERSION=SW_VERSION, REPO=REPO,
-                                                                        VENDOR_ID=VENDOR_ID, DEVICE_ID=DEVICE_ID, UNIQUE_ID=UNIQUE_ID,
-                                                                        meter_type_CAP=str(meter['type']).capitalize(),
-                                                                        meter_type=meter['type'], meter_id=meter['id'], meter_units=meter['unit'], meter_icon=meter['icon'], meter_device_class=meter['device_class']), 
+                values = dict(VENDOR_ID=VENDOR_ID, VENDOR_NAME=VENDOR_NAME, SW_VERSION=SW_VERSION, 
+                            REPO=REPO, DEVICE_ID=DEVICE_ID, UNIQUE_ID=UNIQUE_ID,
+                            meter_id=meter['id'], meter_type=meter['type'], 
+                            meter_type_CAP=str(meter['type']).capitalize(),
+                            meter_units=meter['unit'], meter_icon=meter['icon'], 
+                            meter_device_class=meter['device_class'])
+                values['STATE_TOPIC'] = ha.STATE_TOPIC.format(**values)
+                values['AVAILABLE_TOPIC'] = ha.AVAILABLE_TOPIC.format(**values)
+                publish.single(topic=ha.HA_CONFIG_TOPIC_ENERGY.format(**values), 
+                               payload=ha.HA_CONFIG_PAYLOAD_ENERGY.format(**values), 
                                qos=1, hostname=MQTT_HOST, port=int(MQTT_PORT), auth=auth, retain=True)
-                publish.single(topic=ha.HA_CONFIG_TOPIC_LINKQUALITY.format(UNIQUE_ID=UNIQUE_ID, meter_type=meter['type'], meter_id=meter['id']), 
-                               payload=ha.HA_CONFIG_PAYLOAD_LINKQUALITY.format(STATE_TOPIC=ha.STATE_TOPIC.format(VENDOR_ID=VENDOR_ID, 
-                                                                                                           meter_type=meter['type'], meter_id=meter['id']), 
-                                                                            AVAILABLE_TOPIC=ha.AVAILABLE_TOPIC.format(VENDOR_ID=VENDOR_ID,meter_type=meter['type']),
-                                                                            VENDOR_NAME=VENDOR_NAME, SW_VERSION=SW_VERSION, REPO=REPO,
-                                                                            VENDOR_ID=VENDOR_ID, DEVICE_ID=DEVICE_ID, UNIQUE_ID=UNIQUE_ID,
-                                                                            meter_type_CAP=str(meter['type']).capitalize(),
-                                                                            meter_type=meter['type'], meter_id=meter['id']), 
+                publish.single(topic=ha.HA_CONFIG_TOPIC_LINKQUALITY.format(**values), 
+                               payload=ha.HA_CONFIG_PAYLOAD_LINKQUALITY.format(**values), 
                                qos=1, hostname=MQTT_HOST, port=int(MQTT_PORT), auth=auth, retain=True)
-                publish.single(topic=ha.HA_CONFIG_TOPIC_LASTSEEN.format(UNIQUE_ID=UNIQUE_ID, meter_type=meter['type'], meter_id=meter['id']), 
-                               payload=ha.HA_CONFIG_PAYLOAD_LASTSEEN.format(STATE_TOPIC=ha.STATE_TOPIC.format(VENDOR_ID=VENDOR_ID, 
-                                                                                                        meter_type=meter['type'], meter_id=meter['id']), 
-                                                                        AVAILABLE_TOPIC=ha.AVAILABLE_TOPIC.format(VENDOR_ID=VENDOR_ID,meter_type=meter['type']),
-                                                                        VENDOR_NAME=VENDOR_NAME, SW_VERSION=SW_VERSION, REPO=REPO,
-                                                                        VENDOR_ID=VENDOR_ID, DEVICE_ID=DEVICE_ID, UNIQUE_ID=UNIQUE_ID,
-                                                                        meter_type_CAP=str(meter['type']).capitalize(),
-                                                                        meter_type=meter['type'], meter_id=meter['id']), 
+                publish.single(topic=ha.HA_CONFIG_TOPIC_LASTSEEN.format(**values), 
+                               payload=ha.HA_CONFIG_PAYLOAD_LASTSEEN.format(**values), 
                                qos=1, hostname=MQTT_HOST, port=int(MQTT_PORT), auth=auth, retain=True)
-                publish.single(topic=ha.AVAILABLE_TOPIC.format(VENDOR_ID=VENDOR_ID, meter_type=meter['type']), 
+                publish.single(topic=values['AVAILABLE_TOPIC'], 
                                payload='online', qos=1, hostname=MQTT_HOST, port=int(MQTT_PORT), auth=auth, retain=True)
             break
         except Exception as ex:
-            logger.error(f"MQTT Config Publish Failed: {str(ex)}")
+            logger.exception(f"MQTT Config Publish Failed: {str(ex)}")
             time.sleep(5)       
 
 def publish_mqtt(topic, payload,):
     try:
         publish.single(topic, payload=payload, qos=1, hostname=MQTT_HOST, port=int(MQTT_PORT), auth=auth)
     except Exception as ex:
-        logger.error(f"MQTT Publish Failed: {str(ex)}, will try to reconnect to MQTT server...")
+        logger.exception(f"MQTT Publish Failed: {str(ex)}, will try to reconnect to MQTT server...")
         send_mqtt_config()
 
 def start_rtltcp():
@@ -244,9 +231,6 @@ def main():
                     if str(meter_id) != meter['id']:
                         continue
                     current_reading = msg[meter['rtlsdr_value_name']]
-                    meter_type = meter['type']
-                    meter_units = meter['unit']
-                    multiplier = meter['unit_multiplier']
                     
                     linkquality_val = 'unknown'
                     try:
@@ -255,22 +239,21 @@ def main():
                         output,err=linkquality.communicate()
                         if output:
                             linkquality_val = int(output.decode().strip().replace('.', ''))
-                    except Exception:
-                        logger.error('Error getting linkquality')
-                        logger.error(traceback.format_exc())
+                    except Exception as ex:
+                        logger.exception(f'Error getting linkquality: {str(ex)}')
                         
-                    publish_mqtt(ha.STATE_TOPIC.format(VENDOR_ID=VENDOR_ID, meter_type=meter_type, meter_id=meter_id), 
+                    publish_mqtt(ha.STATE_TOPIC.format(VENDOR_ID=VENDOR_ID, meter_type=meter['type'], meter_id=meter_id), 
                                 payload=json.dumps({
-                                    'energy': round(current_reading * multiplier, 6),
+                                    'energy': round(current_reading * meter['unit_multiplier'], 6),
                                     'linkquality': linkquality_val,
                                     'last_seen': data['Time']
                                     }))
                     
-                    logger.info(f"Published topic, meter {meter_id} reading: {current_reading}")   
+                    logger.info(f"Published new reading, meter {meter_id} reading: {current_reading}")   
                     break
             
-        except Exception:
-            logger.error(traceback.format_exc())
+        except Exception as ex:
+            logger.exception(f'Error: {str(ex)}')
             time.sleep(2)
             if rtltcp.poll() is not None:
                 if rtltcp.stderr.readable():
