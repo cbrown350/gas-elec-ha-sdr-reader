@@ -6,7 +6,7 @@ services:
     # build: 
     #   context: .
     #   dockerfile: Dockerfile    
-    image: ghcr.io/github.com/cbrown350/gas-elec-ha-sdr-reader:latest
+    image: ghcr.io/cbrown350/gas-elec-ha-sdr-reader:latest
     restart: unless-stopped
     network_mode: host # used when rtlmux can't bind to host on some platforms
     # ports:
